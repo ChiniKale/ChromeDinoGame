@@ -33,7 +33,7 @@ lastFrame = pygame.time.get_ticks() #get ticks returns current time in milliseco
 
 import random
 MINGAP = 200
-VELOCITY = 300
+
 MAXGAP = 600
 MAXSIZE = 40
 MINSIZE = 20
@@ -53,7 +53,7 @@ while True:  # Game loop
     t = pygame.time.get_ticks()  # Get current time
     deltaTime = (t - lastFrame) / 1000.0  # Find difference in time and then convert it to seconds
     lastFrame = t  # Set lastFrame as the current time for the next frame.
-
+    VELOCITY = 300 + 0.01*t
     for event in pygame.event.get():  # Check for events
         keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT:
@@ -81,7 +81,7 @@ while True:  # Game loop
         is_high = random.random() > 0.7  # 30% chance to be ground obstacle, 70% sky
         obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
         obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
-        lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random()
+        lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random() + 0.01*t
 
     # Check for collisions and update obstacles
     for obs in obstacles:
