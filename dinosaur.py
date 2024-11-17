@@ -54,7 +54,7 @@ class Dinosaur:
             self.is_jumping = True
     def smoljump(self): #When adding classes into function, the first parameter must be the parameter
         if(self.y == 0): #Only allow jumping if the dinosaur is on the ground to prevent mid air jumps.
-            self.yvelocity = 250
+            self.yvelocity = 200
             self.is_jumping = True
     def duck(self, is_ducking):
         self.is_ducking = is_ducking
@@ -64,7 +64,10 @@ class Dinosaur:
             self.height = 60  # Reset height when not ducking
         
     def update(self, deltaTime): #Updates the y position of the dinosaur each second
-        self.yvelocity += -1000*deltaTime #Gravity
+        if not self.is_ducking:
+            self.yvelocity += -750*deltaTime 
+        else:
+            self.yvelocity += -2500*deltaTime #Gravity
         self.y += self.yvelocity * deltaTime
         if self.y < 0: #if the dinosaur sinks into the ground, make velocity and y = 0
             self.y = 0
