@@ -10,7 +10,7 @@ class Dinosaur:
         self.x = 60
         self.y = 0
         self.height = 60  # New height of the dinosaur
-        self.width = 30
+        self.width = 40
         self.yvelocity = 0
         self.is_collided = False
         self.is_ducking = False

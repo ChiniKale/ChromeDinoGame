@@ -12,7 +12,7 @@ mixer.init()
 # Loading the song 
 mixer.music.load("bgm.mp3") 
 
-Bat =  Batsymb(0, 120) 
+Bat =  Batsymb(0, 115) 
 # Setting the volume 
 mixer.music.set_volume(0.7) 
   
@@ -83,7 +83,7 @@ while True:  # Game loop
     gameDisplay.blit(ground_image, (ground_scroll, 300))            # First segment
     gameDisplay.blit(ground_image, (ground_scroll + ground_width, 300))
     # Draw Score
-    draw_text(f"Score: {t // 1000}", text_font, (0, 255, 0), 100, 50)
+    draw_text(f"Score: {t // 100}", text_font, (0, 255, 0), 100, 50)
 
     dinosaur.update(deltaTime)
     dinosaur.draw(gameDisplay)

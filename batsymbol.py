@@ -21,7 +21,7 @@ class Batsymb:
             self.timer -= deltaTime
             if self.timer <= 0:  # Reactivate after the timer runs out
                 self.x = 800 + random.randint(0, 300)  # Reset position
-                self.y = 120  # Randomize vertical position
+                self.y = 115  # Randomize vertical position
                 self.active = True
 
     def draw(self, gameDisplay):
