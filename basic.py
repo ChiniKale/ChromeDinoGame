@@ -43,6 +43,9 @@ text_font = pygame.font.SysFont("Helvetica", 30)
 
 obstaclesize = 20
 
+ground_image = pygame.image.load(r"ground.png")  # Load the ground texture
+ground_width = ground_image.get_width()        # Get the width of the texture
+ground_scroll = 0
 
 def draw_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
@@ -54,6 +57,7 @@ while True:  # Game loop
     deltaTime = (t - lastFrame) / 1000.0  # Find difference in time and then convert it to seconds
     lastFrame = t  # Set lastFrame as the current time for the next frame.
     VELOCITY = 300 + 0.01*t
+
     for event in pygame.event.get():  # Check for events
         keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT:
@@ -71,7 +75,11 @@ while True:  # Game loop
             dinosaur.duck(False)          
 
     gameDisplay.fill(white)  # Clear the screen
-
+    ground_scroll -= VELOCITY * deltaTime
+    if ground_scroll <= -ground_width:  # Reset scroll position when it goes off-screen
+        ground_scroll += ground_width
+    gameDisplay.blit(ground_image, (ground_scroll, 300))            # First segment
+    gameDisplay.blit(ground_image, (ground_scroll + ground_width, 300))
     # Draw Score
     draw_text(f"Score: {t // 1000}", text_font, (0, 255, 0), 100, 150)
 
@@ -118,5 +126,5 @@ while True:  # Game loop
 
     lastObstacle -= VELOCITY * deltaTime
 
-    pygame.draw.rect(gameDisplay, black, [0, GROUND_HEIGHT, width, height - GROUND_HEIGHT])
+    # pygame.draw.rect(gameDisplay, black, [0, GROUND_HEIGHT, width, height - GROUND_HEIGHT])
     pygame.display.update()  # Updates the screen
