@@ -90,7 +90,13 @@ while True:  # Game loop
         if dino_rect.colliderect(obs_rect):
             draw_text("Game Over", text_font, (255, 0, 0), width // 2 - 100, height // 2)
             pygame.display.update()
-            pygame.time.wait(2000)  # Wait for 2 seconds
+            #mixer.music.stop()
+            mixer.music.load("gameover.mp3")    
+            # Setting the volume 
+            mixer.music.set_volume(0.7) 
+            # Start playing the song 
+            mixer.music.play() 
+            pygame.time.wait(3000)  # Wait for 2 seconds
             pygame.quit()
             quit()
 
