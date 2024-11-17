@@ -22,7 +22,7 @@ gameDisplay= pygame.display.set_mode(size) #creates screen
 xPos = 0
 yPos = 0
 black = 0,0,0
-GROUND_HEIGHT = height-100 
+GROUND_HEIGHT = height-100
 collision = False  # Track collision state
 collision_animation_complete = False
 
