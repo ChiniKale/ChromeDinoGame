@@ -61,7 +61,10 @@ while True:  # Game loop
             quit()
         if event.type == pygame.KEYDOWN:  # If user uses the keyboard
             if event.key == pygame.K_SPACE:  # If that key is space
-                dinosaur.jump()  # Make dinosaur jump
+                dinosaur.bigjump()  # Make dinosaur jump
+        if event.type == pygame.KEYDOWN:  # If user uses the keyboard
+            if event.key == pygame.K_UP:  # If that key is space
+                dinosaur.smoljump()
         if keys[pygame.K_DOWN]:
             dinosaur.duck(True)  # Duck while the down key is held
         else:
