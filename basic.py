@@ -78,7 +78,8 @@ while True:  # Game loop
     dinosaur.update(deltaTime)
     dinosaur.draw(gameDisplay)
     if len(obstacles) == 0 or obstacles[-1].x < width - MINGAP:
-        is_high = random.random() > 0.7  # 30% chance to be ground obstacle, 70% sky
+        ahaha = random.random()
+        is_high = ahaha > 0.7
         obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
         obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
         lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random() + 0.01*t

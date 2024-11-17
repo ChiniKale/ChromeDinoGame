@@ -12,12 +12,16 @@ class Obstacle:
         self.animation_time = 0.5  # Time per frame in seconds
         self.time_accumulator = 0 
         if is_high:
-            self.y = GroundHeight - size - 30
-            self.frames = [pygame.transform.scale(pygame.image.load(r"birb.png"), (size, size)), pygame.transform.scale(pygame.image.load(r"birb2.png"), (size, size))]  # Height of the sky obstacles
+            ahaha = random.random()
+            if ahaha >= 0.33:
+                self.y = GroundHeight - size - 30
+                self.frames = [pygame.transform.scale(pygame.image.load(r"birb.png"), (size, size)), pygame.transform.scale(pygame.image.load(r"birb2.png"), (size, size))]  # Height of the sky obstacles
+            else:
+                self.y = GroundHeight - size
+                self.frames = [pygame.transform.scale(pygame.image.load(r"birb.png"), (size, size)), pygame.transform.scale(pygame.image.load(r"birb2.png"), (size, size))]  # Height of the sky obstacles
         else:
             self.y = GroundHeight - size
             self.frames = [pygame.transform.scale(pygame.image.load(r"cactus.png"), (size, size)), pygame.transform.scale(pygame.image.load(r"cactus.png"), (size, size))]  # Ground obstacles
-
     
     def draw(self, gameDisplay):
         current_image = self.frames[self.current_frame % len(self.frames)]
