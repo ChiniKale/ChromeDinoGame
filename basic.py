@@ -23,6 +23,8 @@ xPos = 0
 yPos = 0
 black = 0,0,0
 GROUND_HEIGHT = height-100 
+collision = False  # Track collision state
+collision_animation_complete = False
 
 
 dinosaur = Dinosaur(GROUND_HEIGHT)
@@ -75,30 +77,41 @@ while True:  # Game loop
 
     # Check for collisions and update obstacles
     for obs in obstacles:
-        obs.update(deltaTime, VELOCITY)
-        obs.draw(gameDisplay)
+        if not collision:
+            obs.update(deltaTime, VELOCITY)
+            obs.draw(gameDisplay)
 
         # Define dinosaur and obstacle rectangles
-        dino_rect = pygame.Rect(
+            dino_rect = pygame.Rect(
             dinosaur.x, dinosaur.surfaceHeight - dinosaur.y - dinosaur.height, dinosaur.width, dinosaur.height
-        )
-        obs_rect = pygame.Rect(
+            )
+            obs_rect = pygame.Rect(
             obs.x, obs.GroundHeight - obs.size, obs.size, obs.size
-        )
+            )
+
+            if dino_rect.colliderect(obs_rect):
+                collision = True
+                dinosaur.is_collided = True
+
+        else:
 
         # Check for collision
-        if dino_rect.colliderect(obs_rect):
-            draw_text("Game Over", text_font, (255, 0, 0), width // 2 - 100, height // 2)
-            pygame.display.update()
-            #mixer.music.stop()
-            mixer.music.load("gameover.mp3")    
-            # Setting the volume 
-            mixer.music.set_volume(0.7) 
-            # Start playing the song 
-            mixer.music.play() 
-            pygame.time.wait(3000)  # Wait for 2 seconds
-            pygame.quit()
-            quit()
+            if dino_rect.colliderect(obs_rect):
+                dinosaur.is_collided = True
+                collision_animation_complete = dinosaur.update_collision_animation(deltaTime)
+                draw_text("Game Over", text_font, (255, 0, 0), width // 2 - 100, height // 2)
+                pygame.display.update()
+                #mixer.music.stop()
+                mixer.music.load("gameover.mp3")    
+                # Setting the volume 
+                mixer.music.set_volume(0.7) 
+                # Start playing the song 
+                mixer.music.play() 
+                pygame.time.wait(3000)  # Wait for 2 seconds
+                pygame.quit()
+                quit()
+
+        dinosaur.draw(gameDisplay)
 
         if obs.checkOver():  # Reset obstacle position if it goes off-screen
             lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random()
