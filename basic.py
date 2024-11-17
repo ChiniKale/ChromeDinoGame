@@ -23,6 +23,8 @@ xPos = 0
 yPos = 0
 black = 0,0,0
 GROUND_HEIGHT = height-100 
+collision = False  # Track collision state
+collision_animation_complete = False
 
 
 dinosaur = Dinosaur(GROUND_HEIGHT)
@@ -53,12 +55,17 @@ while True:  # Game loop
     lastFrame = t  # Set lastFrame as the current time for the next frame.
 
     for event in pygame.event.get():  # Check for events
+        keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT:
             pygame.quit()  # Quit
             quit()
         if event.type == pygame.KEYDOWN:  # If user uses the keyboard
             if event.key == pygame.K_SPACE:  # If that key is space
                 dinosaur.jump()  # Make dinosaur jump
+        if keys[pygame.K_DOWN]:
+            dinosaur.duck(True)  # Duck while the down key is held
+        else:
+            dinosaur.duck(False)          
 
     gameDisplay.fill(white)  # Clear the screen
 
@@ -75,11 +82,12 @@ while True:  # Game loop
 
     # Check for collisions and update obstacles
     for obs in obstacles:
-        obs.update(deltaTime, VELOCITY)
-        obs.draw(gameDisplay)
+        if not collision:
+            obs.update(deltaTime, VELOCITY)
+            obs.draw(gameDisplay)
 
         # Define dinosaur and obstacle rectangles
-        dino_rect = pygame.Rect(
+            dino_rect = pygame.Rect(
             dinosaur.x, dinosaur.surfaceHeight - dinosaur.y - dinosaur.height, dinosaur.width, dinosaur.height
         )
         obs_rect = pygame.Rect(
@@ -98,6 +106,8 @@ while True:  # Game loop
             pygame.time.wait(3000)  # Wait for 2 seconds
             pygame.quit()
             quit()
+
+        dinosaur.draw(gameDisplay)
 
         if obs.checkOver():  # Reset obstacle position if it goes off-screen
             obstacles.remove(obs)
