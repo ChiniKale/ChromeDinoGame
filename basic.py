@@ -60,12 +60,17 @@ while True:  # Game loop
     lastFrame = t  # Set lastFrame as the current time for the next frame.
 
     for event in pygame.event.get():  # Check for events
+        keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT:
             pygame.quit()  # Quit
             quit()
         if event.type == pygame.KEYDOWN:  # If user uses the keyboard
             if event.key == pygame.K_SPACE:  # If that key is space
                 dinosaur.jump()  # Make dinosaur jump
+        if keys[pygame.K_DOWN]:
+            dinosaur.duck(True)  # Duck while the down key is held
+        else:
+            dinosaur.duck(False)          
 
     gameDisplay.fill(black)  # Clear the screen
 
