@@ -1,6 +1,7 @@
 import pygame
 from dinosaur import Dinosaur #import the class Dinosaur from the file ’dinosaur’
 from obstacle import Obstacle
+from batsymbol import Batsymb
 
 pygame.init() #this ‘starts up’ pygame
 from pygame import mixer 
@@ -10,7 +11,8 @@ mixer.init()
   
 # Loading the song 
 mixer.music.load("bgm.mp3") 
-  
+
+Bat =  Batsymb(0, 120) 
 # Setting the volume 
 mixer.music.set_volume(0.7) 
   
@@ -73,10 +75,12 @@ while True:  # Game loop
     gameDisplay.fill(white)  # Clear the screen
 
     # Draw Score
-    draw_text(f"Score: {t // 1000}", text_font, (0, 255, 0), 100, 150)
+    draw_text(f"Score: {t // 1000}", text_font, (0, 255, 0), 100, 50)
 
     dinosaur.update(deltaTime)
     dinosaur.draw(gameDisplay)
+    Bat.update(deltaTime)
+    Bat.draw(gameDisplay)
     if len(obstacles) == 0 or obstacles[-1].x < width - MINGAP:
         is_high = random.random() > 0.7  # 30% chance to be ground obstacle, 70% sky
         obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
