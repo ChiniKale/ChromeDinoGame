@@ -40,11 +40,6 @@ lastObstacle = width
 text_font = pygame.font.SysFont("Helvetica", 30)
 
 obstaclesize = 20
-for i in range(4):
-    lastObstacle += MINGAP+(MAXGAP-MINGAP)*random.random() #Make distance between rocks random
-    obstacle_size = random.randint(MINSIZE, MAXSIZE)
-    is_high = random.random() > 0.7
-    obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
 
 
 def draw_text(text, font, text_col, x, y):
@@ -65,13 +60,18 @@ while True:  # Game loop
             if event.key == pygame.K_SPACE:  # If that key is space
                 dinosaur.jump()  # Make dinosaur jump
 
-    gameDisplay.fill(black)  # Clear the screen
+    gameDisplay.fill(white)  # Clear the screen
 
     # Draw Score
     draw_text(f"Score: {t // 1000}", text_font, (0, 255, 0), 100, 150)
 
     dinosaur.update(deltaTime)
     dinosaur.draw(gameDisplay)
+    if len(obstacles) == 0 or obstacles[-1].x < width - MINGAP:
+        is_high = random.random() > 0.7  # 30% chance to be ground obstacle, 70% sky
+        obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
+        obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
+        lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random()
 
     # Check for collisions and update obstacles
     for obs in obstacles:
@@ -83,14 +83,13 @@ while True:  # Game loop
             dinosaur.x, dinosaur.surfaceHeight - dinosaur.y - dinosaur.height, dinosaur.width, dinosaur.height
         )
         obs_rect = pygame.Rect(
-            obs.x, obs.GroundHeight - obs.size, obs.size, obs.size
+            obs.x, obs.y, obs.size, obs.size
         )
 
         # Check for collision
         if dino_rect.colliderect(obs_rect):
             draw_text("Game Over", text_font, (255, 0, 0), width // 2 - 100, height // 2)
             pygame.display.update()
-            #mixer.music.stop()
             mixer.music.load("gameover.mp3")    
             # Setting the volume 
             mixer.music.set_volume(0.7) 
@@ -101,10 +100,9 @@ while True:  # Game loop
             quit()
 
         if obs.checkOver():  # Reset obstacle position if it goes off-screen
-            lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random()
-            obs.x = lastObstacle
+            obstacles.remove(obs)
 
     lastObstacle -= VELOCITY * deltaTime
 
-    pygame.draw.rect(gameDisplay, white, [0, GROUND_HEIGHT, width, height - GROUND_HEIGHT])
+    pygame.draw.rect(gameDisplay, black, [0, GROUND_HEIGHT, width, height - GROUND_HEIGHT])
     pygame.display.update()  # Updates the screen
