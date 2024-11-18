@@ -74,33 +74,7 @@ try:
         lastFrame = t  # Set lastFrame as the current time for the next frame.
         VELOCITY = 300 + 0.01*t
 
-        action = 0  # Default action: do nothing
-        # for event in pygame.event.get():
-        #     keys = pygame.key.get_pressed()
-        #     if event.type == pygame.QUIT:
-        #         pygame.quit()
-        #         quit()
-
-        #     action = 0  # Default action: do nothing
-        #     if event.type == pygame.KEYDOWN:  # If user uses the keyboard
-        #         if event.key == pygame.K_SPACE:  # If that key is space
-        #             dinosaur.bigjump()  # Make dinosaur jump
-        #             action = 1  # Set action to 1 (jump)
-        #     if event.type == pygame.KEYDOWN:  # If user uses the keyboard
-        #         if event.key == pygame.K_UP:  # If that key is space
-        #             dinosaur.smoljump()
-        #             action = 1  # Set action to 2 (jump)
-        #     if keys[pygame.K_DOWN]:
-        #         dinosaur.duck(True)  # Duck while the down key is held
-        #         action = 2 # Set action to 2 (duck)
-        #     else:
-        #         dinosaur.duck(False)  
-        
-        # # if not (prev_action == 0 and action == 0):  # Avoid consecutive "do nothing" actions
-        # game_state = get_game_state(dinosaur, obstacles, VELOCITY)
-        # training_data.append(game_state + [action])
-        # prev_action = action  # Update the previous action
-
+        action = 0  
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
 
@@ -117,13 +91,13 @@ try:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:  # Smol jump
                     dinosaur.smoljump()
-                    action = 1  # Jump action
+                    action = 2  # Jump action
 
             # Duck action handling (ensure it doesn't overwrite the jump action)
             if keys[pygame.K_DOWN]:
                 dinosaur.duck(True)  # Duck while the down key is held
                 if action == 0:  # Don't overwrite jump action if already jumping
-                    action = 2  # Duck action
+                    action = 3  # Duck action
             else:
                 dinosaur.duck(False)
 
