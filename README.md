@@ -6,13 +6,13 @@
 
 ***
 
-*Dinosaurs: Life’s great, nothing can stop us!
+_Dinosaurs: Life’s great, nothing can stop us!
+_
+_Asteroid: Bet._
 
-Asteroid: Bet.
+_(some millenia later...)_
 
-(some millenia later...)
-
-Vinmay: Hold my beer*
+_Vinmay: Hold my beer_
 
 ***
 Things remaining to do:
