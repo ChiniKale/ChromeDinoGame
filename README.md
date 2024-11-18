@@ -5,13 +5,15 @@
 4. Arash Dev Ahlawat, 23B1817
 
 ***
-_Dinosaurs: Life’s great, nothing can stop us!
+
+*Dinosaurs: Life’s great, nothing can stop us!
 
 Asteroid: Bet.
 
 (some millenia later...)
 
-Vinmay: Hold my beer_
+Vinmay: Hold my beer*
+
 ***
 Things remaining to do:
 1. Add Background Clounds and Small mountain in front of the BAT SIGNAL.
