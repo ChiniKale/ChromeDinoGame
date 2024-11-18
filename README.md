@@ -6,8 +6,7 @@
 
 ***
 
-_Dinosaurs: Life’s great, nothing can stop us!
-_
+_Dinosaurs: Life’s great, nothing can stop us!_
 _Asteroid: Bet._
 
 _(some millenia later...)_
