@@ -1,3 +1,9 @@
+# PH227, Autumn '24
+1. Chinmay Kale, 23B1849
+2. Arya Joshi, 23B1853
+3. Gokularamanan R S, 23B1854
+4. Arash Dev Ahlawat, 23B1817
+
 _Dinosaurs: Life’s great, nothing can stop us!
 
 Asteroid: Bet.
@@ -5,13 +11,7 @@ Asteroid: Bet.
 (some millenia later...)
 
 Vinmay: Hold my beer_
-
-# PH227, Autumn '24
-1. Chinmay Kale, 23B1849
-2. Arya Joshi, 23B1853
-3. Gokularamanan R S, 23B1854
-4. Arash Dev Ahlawat, 23B1817
-
+***
 Things remaining to do:
 1. Add Background Clounds and Small mountain in front of the BAT SIGNAL.
 2. Different Sprites For different sizes of Cacti
