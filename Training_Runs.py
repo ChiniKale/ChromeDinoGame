@@ -7,7 +7,7 @@ import time
 
 pygame.init() #this ‘starts up’ pygame
 from pygame import mixer 
-  
+
 # Starting the mixer 
 mixer.init() 
   
