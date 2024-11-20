@@ -20,8 +20,8 @@ Things remaining to do:
 3. Inverting Color After some Time (Add MOON/SUN? )
 4. Add the retry button
 5. Add milestone noises(100,500,1000)
-6. Add end-credits : just each of our names in an arcade-inspired font
+6. Add end-credits : just each of our names in an arcade-inspired font <br>
 
-(ambitious)
-7. add a mars version - change the background to look like mars; add a photo of a rover; slightly increase the height jumpable and the time in air after every jump (the starup of this game must have the title: DinoMars - 1200000 BC)
-8. AI MODEL 
+(ambitious) <br>
+7. add a mars version - change the background to look like mars; add a photo of a rover; slightly increase the height jumpable and the time in air after every jump (the starup of this game must have the title: DinoMars - 1200000 BC) <br>
+8. AI MODEL <br> 
