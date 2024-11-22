@@ -121,7 +121,7 @@ while True:  # Game loop
     gameDisplay.blit(ground_image, (ground_scroll + ground_width, 300))
 
     # Draw Score
-    draw_text(f"Score: {int(game_timer)}", text_font, (0, 255, 0), 100, 50)
+    draw_text(f"Score: {int(game_timer*10)}", text_font, (0, 255, 0), 100, 50)
 
     dinosaur.update(deltaTime)
     dinosaur.draw(gameDisplay)
