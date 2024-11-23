@@ -17,7 +17,7 @@ _Vinmay: Hold my beer_
 Things remaining to do:
 1. Add Background Clounds and Small mountain in front of the BAT SIGNAL.
 2. Different Sprites For different sizes of Cacti
-3. Inverting Color After some Time (Add MOON/SUN? )
+3. Inverting Color After some Time (Add MOON/SUN?)
 4. Add end-credits : just each of our names in an arcade-inspired font <br>
 
 (ambitious) <br>

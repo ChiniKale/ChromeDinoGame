@@ -2,7 +2,6 @@ import pygame
 from dinosaur import Dinosaur #import the class Dinosaur from the file ’dinosaur’
 from obstacle import Obstacle
 from batsymbol import Batsymb
-import time
 
 pygame.init() #this ‘starts up’ pygame
 clock = pygame.time.Clock()
@@ -21,7 +20,7 @@ mixer.music.set_volume(0.7)
 # Start playing the song 
 mixer.music.play(loops = -1) 
 game_timer = 0
-size = width,height = 640, 480#creates tuple called size with width 400  and height 230 
+size = width,height = 640, 480#creates tuple called size with width 400 and height 230 
 gameDisplay= pygame.display.set_mode(size) #creates screen
 xPos = 0
 yPos = 0
@@ -159,7 +158,7 @@ while True:  # Game loop
             game_over = True
             while game_over:
                 gameDisplay.fill(white)
-                draw_text("Game Over", text_font, (255, 0, 0), width // 2 - 100, height // 2)
+                draw_text(f"Game Over. Score: {int(game_timer*10)}", text_font, (255, 0, 0), width // 2 - 100, height // 2)
                 button("Restart", width // 2 - 100, height // 2 + 50, 100, 40, (100, 200, 100), (50, 150, 50), lambda: reset_game_and_exit_gameover())
 
                 pygame.display.update()

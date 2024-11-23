@@ -84,7 +84,7 @@ class Dinosaur:
             current_image = self.jumping_frames[self.current_frame % len(self.jumping_frames)]
         if self.is_ducking:
             current_image = self.ducking_frames[self.current_frame % len(self.ducking_frames)]    
-        elif  self.is_collided:
+        elif self.is_collided:
             current_image = self.collision_frames[self.current_frame % len(self.collision_frames)]
         else:
             current_image = self.running_frames[self.current_frame % len(self.running_frames)]
