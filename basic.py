@@ -62,17 +62,16 @@ def reset_game_and_exit_gameover():
 def button(text, x, y, width, height, inactive_color, active_color, action=None):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
-    if x + width > mouse[0] > x and y + height > mouse[1] > y:
-        pygame.draw.rect(gameDisplay, active_color, (x, y, width, height))
-        if click[0] == 1 and action is not None:
-            action()
-    else:
-        pygame.draw.rect(gameDisplay, inactive_color, (x, y, width, height))
-    # Render button text
+    color = active_color if x + width > mouse[0] > x and y + height > mouse[1] > y else inactive_color
+    pygame.draw.rect(gameDisplay, color, (x, y, width, height))
+
     btn_font = pygame.font.SysFont("Helvetica", 20)
-    text_surf = btn_font.render(text, True, white)
+    text_surf = btn_font.render(text, True, (0, 0, 0))
     text_rect = text_surf.get_rect(center=(x + width // 2, y + height // 2))
     gameDisplay.blit(text_surf, text_rect)
+
+    if color == active_color and click[0] == 1 and action:
+        action()
 
 
 def reset_game():
@@ -127,7 +126,6 @@ while True:  # Game loop
         mixer.music.pause()
         achievement = mixer.Sound("100.mp3")
         achievement.play()
-        #time.sleep(achievement.get_length())     
         mixer.music.unpause()
     dinosaur.update(deltaTime)
     dinosaur.draw(gameDisplay)
