@@ -5,8 +5,9 @@ from batsymbol import Batsymb
 import time
 
 pygame.init() #this ‘starts up’ pygame
+clock = pygame.time.Clock()
 from pygame import mixer 
-  
+
 # Starting the mixer 
 mixer.init() 
   
@@ -43,7 +44,8 @@ MINSIZE = 20
 obstacles = []
 lastObstacle = width
 text_font = pygame.font.SysFont("Helvetica", 30)
-
+colour = 0
+direction = 0.1
 obstaclesize = 20
 
 ground_image = pygame.image.load(r"ground.png")  # Load the ground texture
@@ -112,7 +114,7 @@ while True:  # Game loop
         else:
             dinosaur.duck(False)
 
-    gameDisplay.fill(white)
+    gameDisplay.fill((colour, colour, colour))
     ground_scroll -= VELOCITY * deltaTime
     if ground_scroll <= -ground_width:
         ground_scroll += ground_width
@@ -158,7 +160,7 @@ while True:  # Game loop
             while game_over:
                 gameDisplay.fill(white)
                 draw_text("Game Over", text_font, (255, 0, 0), width // 2 - 100, height // 2)
-                button("Restart", width // 2 - 50, height // 2 + 50, 100, 40, (100, 200, 100), (50, 150, 50), lambda: reset_game_and_exit_gameover())
+                button("Restart", width // 2 - 100, height // 2 + 50, 100, 40, (100, 200, 100), (50, 150, 50), lambda: reset_game_and_exit_gameover())
 
                 pygame.display.update()
 
@@ -169,3 +171,11 @@ while True:  # Game loop
 
     lastObstacle -= VELOCITY * deltaTime
     pygame.display.update()
+    colour += direction
+
+    # Reverse direction if limits are reached
+    if colour <= 0:  # Fully black
+        direction = 0.1
+    elif colour >= 255:  # Fully white
+        direction = -0.1
+    clock.tick(60)
