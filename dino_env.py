@@ -7,6 +7,12 @@ from obstacle import Obstacle
 from batsymbol import Batsymb
 from pygame import mixer
 import random
+import os
+os.environ["SDL_AUDIODRIVER"] = "dummy"
+import pygame
+pygame.mixer.init()
+
+
 
 # Initialize Pygame and the mixer
 pygame.init()
