@@ -44,8 +44,8 @@ MINSIZE = 20
 obstacles = []
 lastObstacle = width
 text_font = pygame.font.SysFont("Helvetica", 30)
-colour = 0
-direction = 0.1
+colour = 255
+#direction = 0.1
 obstaclesize = 20
 
 ground_image = pygame.image.load(r"ground.png")  # Load the ground texture
@@ -171,11 +171,11 @@ while True:  # Game loop
 
     lastObstacle -= VELOCITY * deltaTime
     pygame.display.update()
-    colour += direction
+    # colour += direction
 
-    # Reverse direction if limits are reached
-    if colour <= 0:  # Fully black
-        direction = 0.1
-    elif colour >= 255:  # Fully white
-        direction = -0.1
-    clock.tick(60)
+    # # Reverse direction if limits are reached
+    # if colour <= 0:  # Fully black
+    #     direction = 0.1
+    # elif colour >= 255:  # Fully white
+    #     direction = -0.1
+    # clock.tick(60)
