@@ -73,6 +73,9 @@ def get_game_state(dinosaur, obstacles, velocity):
     return np.array(state, dtype=np.float32)
 
 # Game Logic
+import time  # Import time for time tracking
+
+# Inside the run_game function
 def run_game(agent, memory, optimizer, criterion, epsilon, train=True):
     game_display = pygame.display.set_mode((WIDTH, HEIGHT))
     dinosaur = Dinosaur(GROUND_HEIGHT)
@@ -82,6 +85,8 @@ def run_game(agent, memory, optimizer, criterion, epsilon, train=True):
     ground_scroll = 0
     game_timer, score = 0, 0
     velocity = 300
+
+    last_action_time = time.time()  # Initialize the last action time
 
     running = True
     while running:
@@ -124,6 +129,7 @@ def run_game(agent, memory, optimizer, criterion, epsilon, train=True):
         state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
 
         # Decide Action
+        current_time = time.time()
         if train and random.random() < epsilon:
             action = random.choice([0, 1, 2])  # Exploration
         else:
@@ -133,13 +139,16 @@ def run_game(agent, memory, optimizer, criterion, epsilon, train=True):
                 agent.train()  # Restore training mode
                 action = torch.argmax(action_prob).item()  # Exploitation
 
-        # Perform Action
-        if action == 0:
-            dinosaur.bigjump()
-        elif action == 1:
-            dinosaur.duck(True)
-        else:
-            dinosaur.duck(False)
+        # Perform Action if 100ms has passed since last action
+        if current_time - last_action_time >= 0.15:  # 100 ms = 0.1 seconds
+            if action == 0:
+                dinosaur.bigjump()
+            elif action == 1:
+                dinosaur.duck(True)
+            else:
+                dinosaur.duck(False)
+
+            last_action_time = current_time  # Update the last action time
 
         # Update and Draw Obstacles
         for obs in obstacles:
@@ -189,12 +198,13 @@ def run_game(agent, memory, optimizer, criterion, epsilon, train=True):
 
     return score
 
+
 if __name__ == "__main__":
     agent = DinoModel()
     optimizer = optim.Adam(agent.parameters(), lr=0.001)
     criterion = nn.MSELoss()
     memory = []
-    epsilon = 0.1  # Exploration rate
+    epsilon = 0.01  # Exploration rate
 
     scores = []
     for episode in range(1000):
