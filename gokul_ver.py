@@ -16,7 +16,7 @@ clock = pygame.time.Clock()
 
 # Constants
 WIDTH, HEIGHT = 640, 480
-GROUND_HEIGHT = HEIGHT -100
+GROUND_HEIGHT = HEIGHT - 100
 FPS = 60
 WHITE, BLACK = (255, 255, 255), (0, 0, 0)
 MINGAP = 200
@@ -29,38 +29,27 @@ ground_image = pygame.image.load("ground.png")
 ground_width = ground_image.get_width()
 mixer.music.load("bgm.mp3")
 achievement_sound = mixer.Sound("100.mp3")
-# gameover_sound = mixer.Sound("gameover.mp3")
 
 # DinoModel Neural Network
 class DinoModel(nn.Module):
     def __init__(self):
         super(DinoModel, self).__init__()
         self.fc = nn.Sequential(
-            nn.Linear(4, 128),  # Increased size for initial layer
+            nn.Linear(4, 128),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(128, 128),
+            nn.LayerNorm(128),  # Using LayerNorm for better compatibility
             nn.ReLU(),
             nn.Linear(128, 64),
             nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU(),
-            nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
+            nn.Linear(32, 3)  # Actions: [jump, duck, do nothing]
         )
 
     def forward(self, x):
         return self.fc(x)
-
-# Simpler Model 
-# class DinoModel(nn.Module):
-#     def __init__(self):
-#         super(DinoModel, self).__init__()
-#         self.fc = nn.Sequential(
-#             nn.Linear(4, 64),  # Updated input size: 4
-#             nn.ReLU(),
-#             nn.Linear(64, 2)  # Output: [jump, duck]
-#         )
-
-#     def forward(self, x):
-#         return self.fc(x)
-
 
 # Draw Text Function
 def draw_text(text, font, color, x, y, surface):
@@ -72,7 +61,6 @@ def draw_text(text, font, color, x, y, surface):
 def get_game_state(dinosaur, obstacles, velocity):
     next_obstacle = next((obs for obs in obstacles if obs.x > dinosaur.x), None)
     if next_obstacle:
-        # Infer is_high based on the obstacle's y-position
         is_high = 1 if next_obstacle.y < next_obstacle.GroundHeight - next_obstacle.size else 0
         state = [
             next_obstacle.x - dinosaur.x,
@@ -81,14 +69,11 @@ def get_game_state(dinosaur, obstacles, velocity):
             is_high,
         ]
     else:
-        # Default state when there are no obstacles
         state = [WIDTH, 0, velocity, 0]
     return np.array(state, dtype=np.float32)
 
-
-
 # Game Logic
-def run_game(agent, memory, optimizer, criterion, train=True):
+def run_game(agent, memory, optimizer, criterion, epsilon, train=True):
     game_display = pygame.display.set_mode((WIDTH, HEIGHT))
     dinosaur = Dinosaur(GROUND_HEIGHT)
     bat = Batsymb(0, 115)
@@ -97,7 +82,6 @@ def run_game(agent, memory, optimizer, criterion, train=True):
     ground_scroll = 0
     game_timer, score = 0, 0
     velocity = 300
-    epsilon = 0.001  # Exploration rate
 
     running = True
     while running:
@@ -141,10 +125,12 @@ def run_game(agent, memory, optimizer, criterion, train=True):
 
         # Decide Action
         if train and random.random() < epsilon:
-            action = random.choice([0, 1])  # Exploration
+            action = random.choice([0, 1, 2])  # Exploration
         else:
             with torch.no_grad():
+                agent.eval()  # Set model to evaluation mode
                 action_prob = agent(state_tensor)
+                agent.train()  # Restore training mode
                 action = torch.argmax(action_prob).item()  # Exploitation
 
         # Perform Action
@@ -164,9 +150,8 @@ def run_game(agent, memory, optimizer, criterion, train=True):
 
             if dino_rect.colliderect(obs_rect):
                 mixer.music.stop()
-                # gameover_sound.play()
                 running = False
-        
+
         lastObstacle -= velocity * delta_time
 
         # Update Dinosaur
@@ -200,25 +185,22 @@ def run_game(agent, memory, optimizer, criterion, train=True):
             loss.backward()
             optimizer.step()
 
-        
         pygame.display.update()
 
     return score
-
 
 if __name__ == "__main__":
     agent = DinoModel()
     optimizer = optim.Adam(agent.parameters(), lr=0.001)
     criterion = nn.MSELoss()
     memory = []
+    epsilon = 0.1  # Exploration rate
 
-    scores = []  # List to store scores for each episode
-    for episode in range(1000):  # Train for 100 episodes
-        score = run_game(agent, memory, optimizer, criterion, train=True)
+    scores = []
+    for episode in range(1000):
+        score = run_game(agent, memory, optimizer, criterion, epsilon, train=True)
         scores.append(score)
         print(f"Episode {episode + 1}: Score = {score}")
 
-    # Save the trained model
     torch.save(agent.state_dict(), "dino_model.pth")
     print("Training Complete. Model saved.")
-
