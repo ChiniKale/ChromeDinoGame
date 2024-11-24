@@ -32,34 +32,34 @@ achievement_sound = mixer.Sound("100.mp3")
 # gameover_sound = mixer.Sound("gameover.mp3")
 
 # DinoModel Neural Network
-class DinoModel(nn.Module):
-    def __init__(self):
-        super(DinoModel, self).__init__()
-        self.fc = nn.Sequential(
-            nn.Linear(4, 128),  # Increased size for initial layer
-            nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
-        )
-
-    def forward(self, x):
-        return self.fc(x)
-
-# Simpler Model 
 # class DinoModel(nn.Module):
 #     def __init__(self):
 #         super(DinoModel, self).__init__()
 #         self.fc = nn.Sequential(
-#             nn.Linear(4, 64),  # Updated input size: 4
+#             nn.Linear(6, 128),  # Increased size for initial layer
 #             nn.ReLU(),
-#             nn.Linear(64, 2)  # Output: [jump, duck]
+#             nn.Linear(128, 64),
+#             nn.ReLU(),
+#             nn.Linear(64, 32),
+#             nn.ReLU(),
+#             nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
 #         )
 
 #     def forward(self, x):
 #         return self.fc(x)
+
+# Simpler Model 
+class DinoModel(nn.Module):
+    def __init__(self):
+        super(DinoModel, self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(6, 64),  # Updated input size: 4
+            nn.ReLU(),
+            nn.Linear(64, 3)  # Output: [jump, duck]
+        )
+
+    def forward(self, x):
+        return self.fc(x)
 
 
 # Draw Text Function
@@ -69,21 +69,63 @@ def draw_text(text, font, color, x, y, surface):
     text_rect.topleft = (x, y)
     surface.blit(text_obj, text_rect)
 
+# Check for GPU availability
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
+
+# Enhanced State Representation
 def get_game_state(dinosaur, obstacles, velocity):
-    next_obstacle = next((obs for obs in obstacles if obs.x > dinosaur.x), None)
-    if next_obstacle:
-        # Infer is_high based on the obstacle's y-position
-        is_high = 1 if next_obstacle.y < next_obstacle.GroundHeight - next_obstacle.size else 0
+    next_obstacles = [obs for obs in obstacles if obs.x > dinosaur.x]
+    if len(next_obstacles) > 0:
+        next_obstacle = next_obstacles[0]
+        # second_obstacle = next_obstacles[1] if len(next_obstacles) > 1 else None
+
+        # Additional state features
         state = [
-            next_obstacle.x - dinosaur.x,
-            next_obstacle.y - dinosaur.y,
-            velocity,
-            is_high,
+            next_obstacle.x - dinosaur.x,  # Distance to next obstacle
+            next_obstacle.y - dinosaur.y,  # Vertical distance
+            next_obstacle.size,            # Size of next obstacle
+            # second_obstacle.x - dinosaur.x if second_obstacle else WIDTH,  # Distance to second obstacle
+            velocity,                      # Current game velocity
+            1 if dinosaur.is_jumping else 0,  # Is the dinosaur jumping?
+            1 if dinosaur.is_ducking else 0,  # Is the dinosaur ducking?
         ]
     else:
-        # Default state when there are no obstacles
-        state = [WIDTH, 0, velocity, 0]
+        # Default state when no obstacles are nearby
+        state = [WIDTH, 0, 0, velocity, 0, 0]
+
     return np.array(state, dtype=np.float32)
+
+def calculate_reward(dinosaur, obstacles, running):
+    if not running:
+        return -10  # Large penalty for game over
+
+    reward = 0.1  # Default survival reward
+
+    for obs in obstacles:
+        # If the obstacle is passed, provide a bonus and mark it as passed
+        if obs.x < dinosaur.x and not getattr(obs, "passed", False):
+            obs.passed = True  # Mark the obstacle as passed
+
+            if obs.y < obs.GroundHeight - obs.size:  # High obstacle
+                if dinosaur.is_ducking:
+                    reward += 5  # Bonus for ducking under a high obstacle
+                else:
+                    reward -= 1  # Penalty for missing a duck opportunity
+            else:  # Ground obstacle
+                if dinosaur.is_jumping:
+                    reward += 5  # Bonus for jumping over a ground obstacle
+                else:
+                    reward -= 1  # Penalty for not jumping
+
+    # Penalize unnecessary actions when no obstacles are near
+    if len(obstacles) > 0:
+        next_obstacle = obstacles[0]
+        if next_obstacle.x - dinosaur.x > 100:  # No immediate obstacle
+            if dinosaur.is_jumping or dinosaur.is_ducking:
+                reward -= 0.5  # Slight penalty for unnecessary actions
+
+    return reward
 
 
 
@@ -144,7 +186,7 @@ def run_game(agent, memory, optimizer, criterion, train=True):
             action = random.choice([0, 1])  # Exploration
         else:
             with torch.no_grad():
-                action_prob = agent(state_tensor)
+                action_prob = agent(state_tensor.to(device))
                 action = torch.argmax(action_prob).item()  # Exploitation
 
         # Perform Action
@@ -175,7 +217,7 @@ def run_game(agent, memory, optimizer, criterion, train=True):
 
         # Update Memory for RL
         next_state = get_game_state(dinosaur, obstacles, velocity)
-        reward = -1 if not running else 0.1
+        reward = calculate_reward(dinosaur, obstacles, running)
         memory.append((state, action, reward, next_state, not running))
 
         # Train Agent
@@ -183,10 +225,11 @@ def run_game(agent, memory, optimizer, criterion, train=True):
             batch = random.sample(memory, 32)
             states, actions, rewards, next_states, dones = zip(*batch)
 
-            states_tensor = torch.tensor(states, dtype=torch.float32)
-            actions_tensor = torch.tensor(actions, dtype=torch.long)
-            rewards_tensor = torch.tensor(rewards, dtype=torch.float32)
-            next_states_tensor = torch.tensor(next_states, dtype=torch.float32)
+
+            states_tensor = torch.tensor(states, dtype=torch.float32).to(device)
+            actions_tensor = torch.tensor(actions, dtype=torch.long).to(device)
+            rewards_tensor = torch.tensor(rewards, dtype=torch.float32).to(device)
+            next_states_tensor = torch.tensor(next_states, dtype=torch.float32).to(device)
 
             q_values = agent(states_tensor)
             next_q_values = agent(next_states_tensor)
@@ -207,8 +250,8 @@ def run_game(agent, memory, optimizer, criterion, train=True):
 
 
 if __name__ == "__main__":
-    agent = DinoModel()
-    optimizer = optim.Adam(agent.parameters(), lr=0.001)
+    agent = DinoModel().to(device)
+    optimizer = optim.Adam(agent.parameters(), lr=0.01)
     criterion = nn.MSELoss()
     memory = []
 
@@ -219,6 +262,7 @@ if __name__ == "__main__":
         print(f"Episode {episode + 1}: Score = {score}")
 
     # Save the trained model
+    print(f"Max Score: {max(scores)}")
     torch.save(agent.state_dict(), "dino_model.pth")
     print("Training Complete. Model saved.")
 
