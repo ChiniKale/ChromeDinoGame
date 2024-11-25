@@ -251,7 +251,7 @@ if __name__ == "__main__":
     mutation_rate = 0.2
     population = [DinoModel().to(device) for _ in range(population_size)]
     agent = DinoModel().to(device)
-    agent.load_state_dict(torch.load("dino_genetic_model.pth"))
+    #agent.load_state_dict(torch.load("dino_genetic_model12.pth"))
     agent.eval()  # Set to evaluation mode
 
     for generation in range(generations):

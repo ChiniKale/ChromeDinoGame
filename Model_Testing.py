@@ -5,6 +5,7 @@ from dinosaur import Dinosaur
 from obstacle_new import Obstacle
 from batsymbol import Batsymb
 from pygame import mixer
+import torch.nn as nn
 
 # Initialize Pygame and Mixer
 pygame.init()
@@ -28,18 +29,22 @@ mixer.music.load("bgm.mp3")
 mixer.music.play(-1)
 
 # DinoModel Neural Network
-class DinoModel(torch.nn.Module):
+class DinoModel(nn.Module):
     def __init__(self):
         super(DinoModel, self).__init__()
-        self.fc = torch.nn.Sequential(
-            torch.nn.Linear(6, 128),
-            torch.nn.ReLU(),
-            torch.nn.Linear(128, 64),
-            torch.nn.ReLU(),
-            torch.nn.Linear(64, 32),
-            torch.nn.ReLU(),
-            torch.nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
+        self.fc = nn.Sequential(
+            nn.Linear(6, 256),  # Increased input size and more neurons
+            nn.ReLU(),
+            nn.Dropout(0.2),  # Prevent overfitting
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
         )
+        # Softmax will be applied outside this model during action selection.
 
     def forward(self, x):
         return self.fc(x)
