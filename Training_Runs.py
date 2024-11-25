@@ -91,7 +91,7 @@ try:
         lastFrame = t  # Set lastFrame as the current time for the next frame.
         VELOCITY = 300 + 0.01*t
 
-        action = 2  
+        action = 1  
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
 
@@ -113,14 +113,14 @@ try:
             # Duck action handling (ensure it doesn't overwrite the jump action)
             if keys[pygame.K_DOWN]:
                 dinosaur.duck(True)  # Duck while the down key is held
-                if action == 2:  # Don't overwrite jump action if already jumping
-                    action = 1  # Duck action
+                # if action == 2:  # Don't overwrite jump action if already jumping
+                action = 1  # Duck action
             else:
                 dinosaur.duck(False)
 
         # Log game state and action
         game_state = get_game_state(dinosaur, obstacles, VELOCITY)
-        if action != 2 or t%100 == 0:  # Log data only when action is not 'do nothing'
+        if action != 1 or t%100 == 0:  # Log data only when action is not 'do nothing'
             training_data.append([t] + game_state.tolist() + [action])
             
 
@@ -183,7 +183,7 @@ try:
         pass
 finally:
     timestamp = time.strftime("%Y%m%d-%H%M%S")  # Format: YYYYMMDD-HHMMSS
-    filename = f"Train_Data/{timestamp}.csv"  # Example: dino_training_data_20241118-143500.csv
+    filename = f"Train_Data_Binary/{timestamp}.csv"  # Example: dino_training_data_20241118-143500.csv
 
     # Create and write to the file
     with open(filename, "w", newline="") as file:

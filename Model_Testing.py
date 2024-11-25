@@ -53,14 +53,18 @@ class DinoModel(nn.Module):
     def __init__(self):
         super(DinoModel, self).__init__()
         self.fc = nn.Sequential(
-            nn.Linear(6, 128),  # Increased size for initial layer
+            nn.Linear(6, 256),  # Increased input size and more neurons
             nn.ReLU(),
+            # nn.Dropout(0.05),  # Prevent overfitting
+            nn.Linear(256, 128),
+            nn.LeakyReLU(0.01),
             nn.Linear(128, 64),
-            nn.ReLU(),
+            nn.LeakyReLU(0.01),
             nn.Linear(64, 32),
             nn.ReLU(),
-            nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
+            nn.Linear(32, 2)  # Output: [jump, duck, do nothing]
         )
+        # Softmax will be applied outside this model during action selection.
 
     def forward(self, x):
         return self.fc(x)
@@ -136,18 +140,21 @@ def run_game(agent):
         bat.draw(game_display)
 
         # Current State
-        state = get_game_state(dinosaur, obstacles, velocity).unsqueeze(0)
+        state = get_game_state(dinosaur, obstacles, velocity)
+        state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(device)
 
         # Decide Action
         with torch.no_grad():
-            action_prob = agent(state)
+            action_prob = agent(state_tensor)
             action = torch.argmax(action_prob).item()
 
-        # Perform Action
         if action == 0:
             dinosaur.bigjump()
-        elif action == 1:
+        elif state[2] != 30 or state[0] > 75:  # Duck only when obstacle is close
+            dinosaur.duck(False)
+        elif action == 1:  # Duck only when obstacle is close
             dinosaur.duck(True)
+            #dinosaur.duck(False)
         else:
             dinosaur.duck(False)
 
@@ -175,5 +182,5 @@ def run_game(agent):
 # Main Program
 if __name__ == "__main__":
     agent = DinoModel().to(device)
-    agent.load_state_dict(torch.load("dino_genetic_model.pth"))
+    agent.load_state_dict(torch.load("model_binary.pth"))
     run_game(agent)

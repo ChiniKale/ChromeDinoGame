@@ -13,30 +13,11 @@ import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class DinoModel(nn.Module):
-    def __init__(self):
-        super(DinoModel, self).__init__()
-        self.fc = nn.Sequential(
-            nn.Linear(6, 128),  # Increased size for initial layer
-            nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
-        )
-
-    def forward(self, x):
-        return self.fc(x)
-
 # class DinoModel(nn.Module):
 #     def __init__(self):
 #         super(DinoModel, self).__init__()
 #         self.fc = nn.Sequential(
-#             nn.Linear(6, 256),  # Increased input size and more neurons
-#             nn.ReLU(),
-#             nn.Dropout(0.1),  # Prevent overfitting
-#             nn.Linear(256, 128),
+#             nn.Linear(6, 128),  # Increased size for initial layer
 #             nn.ReLU(),
 #             nn.Linear(128, 64),
 #             nn.ReLU(),
@@ -44,16 +25,35 @@ class DinoModel(nn.Module):
 #             nn.ReLU(),
 #             nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
 #         )
-#         # Softmax will be applied outside this model during action selection.
 
 #     def forward(self, x):
 #         return self.fc(x)
+
+class DinoModel(nn.Module):
+    def __init__(self):
+        super(DinoModel, self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(6, 256),  # Increased input size and more neurons
+            nn.ReLU(),
+            # nn.Dropout(0.05),  # Prevent overfitting
+            nn.Linear(256, 128),
+            nn.LeakyReLU(0.01),
+            nn.Linear(128, 64),
+            nn.LeakyReLU(0.01),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 2)  # Output: [jump, duck, do nothing]
+        )
+        # Softmax will be applied outside this model during action selection.
+
+    def forward(self, x):
+        return self.fc(x)
     
 import pandas as pd
 
 # Load the CSV into a DataFrame for easier manipulation
 # Directory containing the training data files
-train_data_folder = "D:/IITB/Second Year/Sem 3/PH227/ChromeDinoGame/Train_Data"
+train_data_folder = "D:/IITB/Second Year/Sem 3/PH227/ChromeDinoGame/Train_Data_Binary"
 
 # List to hold dataframes
 dataframes = []
@@ -94,7 +94,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Training loop
-for epoch in range(10000):
+for epoch in range(5000):
     model.train()  # Ensure model is in training mode
     optimizer.zero_grad()
     output = model(X_train)
@@ -128,4 +128,4 @@ print(f'Accuracy: {accuracy}%')
 
 
 # Save the trained model
-torch.save(model.state_dict(), 'model.pth')
+torch.save(model.state_dict(), 'model_binary.pth')

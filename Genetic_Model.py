@@ -31,43 +31,43 @@ mixer.music.load("bgm.mp3")
 achievement_sound = mixer.Sound("100.mp3")
 # gameover_sound = mixer.Sound("gameover.mp3")
 
+class DinoModel(nn.Module):
+    def __init__(self):
+        super(DinoModel, self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(6, 256),  # Increased input size and more neurons
+            nn.ReLU(),
+            # nn.Dropout(0.05),  # Prevent overfitting
+            nn.Linear(256, 128),
+            nn.LeakyReLU(0.01),
+            nn.Linear(128, 64),
+            nn.LeakyReLU(0.01),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 2)  # Output: [jump, duck, do nothing]
+        )
+        # Softmax will be applied outside this model during action selection.
+
+    def forward(self, x):
+        return self.fc(x)
+
+
+# # DinoModel Neural Network
 # class DinoModel(nn.Module):
 #     def __init__(self):
 #         super(DinoModel, self).__init__()
 #         self.fc = nn.Sequential(
-#             nn.Linear(6, 256),  # Increased input size and more neurons
-#             nn.ReLU(),
-#             nn.Dropout(0.2),  # Prevent overfitting
-#             nn.Linear(256, 128),
+#             nn.Linear(6, 128),  # Increased size for initial layer
 #             nn.ReLU(),
 #             nn.Linear(128, 64),
 #             nn.ReLU(),
 #             nn.Linear(64, 32),
 #             nn.ReLU(),
-#             nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
+#             nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
 #         )
-#         # Softmax will be applied outside this model during action selection.
 
 #     def forward(self, x):
 #         return self.fc(x)
-
-
-# DinoModel Neural Network
-class DinoModel(nn.Module):
-    def __init__(self):
-        super(DinoModel, self).__init__()
-        self.fc = nn.Sequential(
-            nn.Linear(6, 128),  # Increased size for initial layer
-            nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
-        )
-
-    def forward(self, x):
-        return self.fc(x)
 
 # Simpler Model 
 # class DinoModel(nn.Module):
@@ -96,7 +96,7 @@ print(f"Using device: {device}")
 
 # Enhanced State Representation
 def get_game_state(dinosaur, obstacles, velocity):
-    next_obstacles = [obs for obs in obstacles if obs.x > dinosaur.x]
+    next_obstacles = [obs for obs in obstacles if obs.x+45 > dinosaur.x]
     if len(next_obstacles) > 0:
         next_obstacle = next_obstacles[0]
         # second_obstacle = next_obstacles[1] if len(next_obstacles) > 1 else None
@@ -147,11 +147,12 @@ def run_generation(population, num_dinos=10):
     ground_scroll = 0
     game_timer, velocity = 0, 300
     running = [True] * num_dinos
+    last_state = np.array([WIDTH, 0, 0, velocity, 0, 0], dtype=np.float32)
 
     while any(running):
         delta_time = clock.tick(FPS) / 1000.0
         game_timer += delta_time
-        velocity = 300 + 0.01 * game_timer * 1000
+        velocity = min(300 + 0.01 * game_timer * 1000, 600)
 
         # Event Handling
         for event in pygame.event.get():
@@ -179,8 +180,10 @@ def run_generation(population, num_dinos=10):
         if len(obstacles) == 0 or obstacles[-1].x < WIDTH - MINGAP:
             is_high = random.random() > 0.7
             obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
+            if obstacle_size == 30 and not is_high:
+                obstacle_size+=1
             obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
-            lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random() + 0.01 * game_timer * 300
+            lastObstacle += min(MINGAP + (MAXGAP - MINGAP) * random.random(), 500)# + min(300 + 0.01 * game_timer * 1000, 600)
 
         # Update Bat
         bat.update(delta_time)
@@ -206,12 +209,17 @@ def run_generation(population, num_dinos=10):
                 action = torch.argmax(action_prob).item()
 
             # Perform Action
-            if action == 0:
+            if action == 0 and state[2] != 30:
                 dino.bigjump()
-            elif action == 1:
+            elif state[2] != 30 or state[0] > 75:  # Duck only when obstacle is close
+                dino.duck(False)
+            elif action == 1:  # Duck only when obstacle is close
                 dino.duck(True)
+                #dino.duck(False)
             else:
                 dino.duck(False)
+
+            last_state = state
 
             # Update and Check for Collisions
             dino.update(delta_time)
@@ -273,12 +281,12 @@ def evolve_population(population, scores, num_parents=2, mutation_rate=0.1):
 if __name__ == "__main__":
     # Initialize Population
     population_size = 25
-    generations = 100
+    generations = 50
     mutation_rate = 0.1
     
     # Load the pre-trained model
     agent = DinoModel().to(device)
-    agent.load_state_dict(torch.load("model.pth"))
+    agent.load_state_dict(torch.load("model_binary.pth"))
     agent.eval()  # Set to evaluation mode
     
     # Initialize the population with copies of the pre-trained agent
@@ -295,12 +303,12 @@ if __name__ == "__main__":
         avg_score = sum(scores) / len(scores)
         print(f"Max Score: {max_score}, Avg Score: {avg_score}")
         
-        torch.save(population[0].state_dict(), f"Genetic_Models/dino_genetic_model{generation}.pth")
+        # torch.save(population[0].state_dict(), f"Genetic_Models1/dino_genetic_model{generation}.pth")
         # Evolve the population
         population = evolve_population(population, scores, num_parents=2, mutation_rate=mutation_rate)
 
     # Save the best-performing model
     best_agent = population[0]
-    torch.save(best_agent.state_dict(), "Genetic_Models/dino_genetic_model.pth")
+    torch.save(best_agent.state_dict(), "Comeon/model_binary.pth")
     print("Training Complete. Model saved.")
 
