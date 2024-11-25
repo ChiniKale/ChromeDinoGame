@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from dinosaur import Dinosaur
-from obstacle import Obstacle
+from obstacle_new import Obstacle
 from batsymbol import Batsymb
 from pygame import mixer
 
@@ -120,7 +120,7 @@ def get_game_state(dinosaur, obstacles, velocity):
 
 def calculate_reward(dinosaur, obstacles, running):
     if not running:
-        return -10  # Large penalty for game over
+        return -50  # Large penalty for game over
 
     reward = 0.1  # Default survival reward
 
@@ -144,12 +144,12 @@ def calculate_reward(dinosaur, obstacles, running):
     if len(obstacles) > 0:
         next_obstacle = obstacles[0]
         distance_to_next = next_obstacle.x - dinosaur.x
-        if distance_to_next > 50:  # No immediate obstacle
+        if distance_to_next > 100:  # No immediate obstacle
             if dinosaur.is_jumping or dinosaur.is_ducking:
-                reward -= 10  # Slight penalty for unnecessary actions
-        elif 0 < distance_to_next <= 50:  # Obstacle is close
+                reward -= 2  # Slight penalty for unnecessary actions
+        elif 0 < distance_to_next <= 100:  # Obstacle is close
             if not (dinosaur.is_jumping or dinosaur.is_ducking):
-                reward -= 10  # Penalty for no action near an obstacle
+                reward -= 2  # Penalty for no action near an obstacle
 
     return reward
 
@@ -192,7 +192,7 @@ def run_game(agent, memory, optimizer, criterion, train=True):
 
         # Spawn Obstacles
         if len(obstacles) == 0 or obstacles[-1].x < WIDTH - MINGAP:
-            is_high = 1 #random.random() > 0.7
+            is_high = random.random() > 0.7
             obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
             obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
             lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random() + 0.01 * game_timer * 1000
@@ -266,22 +266,27 @@ def run_game(agent, memory, optimizer, criterion, train=True):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
         
         pygame.display.update()
+    if score > 1000:
+        print(f"Score exceeds 1000: {score}")
+        running = False
 
     return score
 
 
 if __name__ == "__main__":
     agent = DinoModel().to(device)
+    agent.load_state_dict(torch.load("model.pth"))
     optimizer = optim.Adam(agent.parameters(), lr=0.01)
     criterion = nn.MSELoss()
     memory = []
 
     scores = []  # List to store scores for each episode
-    for episode in range(200):  # Train for 100 episodes
+    for episode in range(500):  # Train for 100 episodes
         score = run_game(agent, memory, optimizer, criterion, train=True)
+        if score == 1000:
+            break
         scores.append(score)
         print(f"Episode {episode + 1}: Score = {score}")
 

@@ -1,9 +1,10 @@
 import pygame
 from dinosaur import Dinosaur #import the class Dinosaur from the file ’dinosaur’
-from obstacle import Obstacle
+from obstacle_new import Obstacle
 from batsymbol import Batsymb
 import csv
 import time
+import numpy as np
 
 pygame.init() #this ‘starts up’ pygame
 from pygame import mixer 
@@ -29,6 +30,7 @@ black = 0,0,0
 GROUND_HEIGHT = height-100
 collision = False  # Track collision state
 collision_animation_complete = False
+WIDTH, HEIGHT = 640, 480
 
 
 dinosaur = Dinosaur(GROUND_HEIGHT)
@@ -57,12 +59,27 @@ def draw_text(text, font, text_col, x, y):
 
 white = 255,255,255
 
-def get_game_state(dinosaur, obstacles, VELOCITY):
-    next_obstacle = obstacles[0] if obstacles else None
-    obstacle_distance = next_obstacle.x - dinosaur.x if next_obstacle else float('inf')
-    obstacle_size = next_obstacle.size if next_obstacle else 0
-    is_high = next_obstacle.y if next_obstacle else 0
-    return [obstacle_distance, obstacle_size, is_high, dinosaur.y, VELOCITY]
+def get_game_state(dinosaur, obstacles, velocity):
+    next_obstacles = [obs for obs in obstacles if obs.x > dinosaur.x]
+    if len(next_obstacles) > 0:
+        next_obstacle = next_obstacles[0]
+        # second_obstacle = next_obstacles[1] if len(next_obstacles) > 1 else None
+
+        # Additional state features
+        state = [
+            next_obstacle.x - dinosaur.x,  # Distance to next obstacle
+            next_obstacle.y,  # Vertical distance
+            next_obstacle.size,            # Size of next obstacle
+            # second_obstacle.x - dinosaur.x if second_obstacle else WIDTH,  # Distance to second obstacle
+            velocity,                      # Current game velocity
+            1 if dinosaur.is_jumping else 0,  # Is the dinosaur jumping?
+            1 if dinosaur.is_ducking else 0,  # Is the dinosaur ducking?
+        ]
+    else:
+        # Default state when no obstacles are nearby
+        state = [WIDTH, 0, 0, velocity, 0, 0]
+
+    return np.array(state, dtype=np.float32)
 
 training_data = []  # List to store game states and actions
 prev_action = -1
@@ -74,7 +91,7 @@ try:
         lastFrame = t  # Set lastFrame as the current time for the next frame.
         VELOCITY = 300 + 0.01*t
 
-        action = 0  
+        action = 2  
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
 
@@ -86,25 +103,25 @@ try:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:  # Jump when space is pressed
                     dinosaur.bigjump()
-                    action = 1  # Jump action
+                    action = 0  # Jump action
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:  # Smol jump
                     dinosaur.smoljump()
-                    action = 2  # Jump action
+                    action = 0  # Jump action
 
             # Duck action handling (ensure it doesn't overwrite the jump action)
             if keys[pygame.K_DOWN]:
                 dinosaur.duck(True)  # Duck while the down key is held
-                if action == 0:  # Don't overwrite jump action if already jumping
-                    action = 3  # Duck action
+                if action == 2:  # Don't overwrite jump action if already jumping
+                    action = 1  # Duck action
             else:
                 dinosaur.duck(False)
 
         # Log game state and action
         game_state = get_game_state(dinosaur, obstacles, VELOCITY)
-        if action != 0 or t%100 == 0:  # Log data only when action is not 'do nothing'
-            training_data.append([t] + game_state + [action])
+        if action != 2 or t%100 == 0:  # Log data only when action is not 'do nothing'
+            training_data.append([t] + game_state.tolist() + [action])
             
 
         gameDisplay.fill(white)  # Clear the screen
@@ -171,6 +188,6 @@ finally:
     # Create and write to the file
     with open(filename, "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["Time","Obstacle Distance", "Obstacle Size", "Is High", "Dino Y", "Velocity", "Action"])
+        writer.writerow(["Time","Obstacle Distance","Obstacle Height", "Obstacle Size", "Velocity", "Dino Jumping", "Dino Ducking", "Action"])
         writer.writerows(training_data)
     print("Training data saved!")
