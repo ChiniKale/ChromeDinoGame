@@ -35,17 +35,18 @@ class DinoModel(nn.Module):
     def __init__(self):
         super(DinoModel, self).__init__()
         self.fc = nn.Sequential(
-            nn.Linear(6, 256),  # Increased input size and more neurons
-            nn.ReLU(),
-            nn.Dropout(0.2),  # Prevent overfitting
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
-        )
+        nn.Linear(7, 256),  # Update input size to 7
+        nn.ReLU(),
+        nn.Dropout(0.2),
+        nn.Linear(256, 128),
+        nn.ReLU(),
+        nn.Linear(128, 64),
+        nn.ReLU(),
+        nn.Linear(64, 32),
+        nn.ReLU(),
+        nn.Linear(32, 3)
+    )
+
         # Softmax will be applied outside this model during action selection.
 
     def forward(self, x):
@@ -177,7 +178,7 @@ def run_generation(population, num_dinos=10):
 
         # Spawn Obstacles
         if len(obstacles) == 0 or obstacles[-1].x < WIDTH - MINGAP:
-            is_high = 1# random.random() > 0.7
+            is_high = 0.2# random.random() > 0.7
             obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
             obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
             lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random() + 0.01 * game_timer * 1000
