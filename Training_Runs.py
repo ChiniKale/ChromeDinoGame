@@ -13,14 +13,14 @@ from pygame import mixer
 mixer.init() 
   
 # Loading the song 
-mixer.music.load("bgm.mp3") 
+#mixer.music.load("bgm.mp3") 
 
 Bat =  Batsymb(0, 115) 
 # Setting the volume 
 mixer.music.set_volume(0.7) 
   
 # Start playing the song 
-mixer.music.play(loops = -1) 
+#mixer.music.play(loops = -1) 
   
 size = width,height = 640, 480#creates tuple called size with width 400  and height 230 
 gameDisplay= pygame.display.set_mode(size) #creates screen
