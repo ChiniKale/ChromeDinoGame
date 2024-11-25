@@ -31,42 +31,42 @@ mixer.music.load("bgm.mp3")
 achievement_sound = mixer.Sound("100.mp3")
 # gameover_sound = mixer.Sound("gameover.mp3")
 
-# class DinoModel(nn.Module):
-#     def __init__(self):
-#         super(DinoModel, self).__init__()
-#         self.fc = nn.Sequential(
-#             nn.Linear(10, 256),  # Increased input size and more neurons
-#             nn.ReLU(),
-#             nn.Dropout(0.2),  # Prevent overfitting
-#             nn.Linear(256, 128),
-#             nn.ReLU(),
-#             nn.Linear(128, 64),
-#             nn.ReLU(),
-#             nn.Linear(64, 32),
-#             nn.ReLU(),
-#             nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
-#         )
-#         # Softmax will be applied outside this model during action selection.
-
-#     def forward(self, x):
-#         return self.fc(x)
-
-# DinoModel Neural Network
 class DinoModel(nn.Module):
     def __init__(self):
         super(DinoModel, self).__init__()
         self.fc = nn.Sequential(
-            nn.Linear(6, 128),  # Increased size for initial layer
+            nn.Linear(6, 256),  # Increased input size and more neurons
+            nn.ReLU(),
+            nn.Dropout(0.2),  # Prevent overfitting
+            nn.Linear(256, 128),
             nn.ReLU(),
             nn.Linear(128, 64),
             nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU(),
-            nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
+            nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
         )
+        # Softmax will be applied outside this model during action selection.
 
     def forward(self, x):
         return self.fc(x)
+
+# DinoModel Neural Network
+# class DinoModel(nn.Module):
+#     def __init__(self):
+#         super(DinoModel, self).__init__()
+#         self.fc = nn.Sequential(
+#             nn.Linear(6, 128),  # Increased size for initial layer
+#             nn.ReLU(),
+#             nn.Linear(128, 64),
+#             nn.ReLU(),
+#             nn.Linear(64, 32),
+#             nn.ReLU(),
+#             nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
+#         )
+
+#     def forward(self, x):
+#         return self.fc(x)
 
 # Simpler Model 
 # class DinoModel(nn.Module):

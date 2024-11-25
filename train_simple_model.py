@@ -78,8 +78,8 @@ X = df.iloc[:, 1:7].values  # Features (assuming columns 1 to 5 are features)
 y = df.iloc[:, 7].values  # Labels (assuming the action column is column 6)
 
 # Convert to PyTorch tensors
-X = torch.tensor(X, dtype=torch.float32)
-y = torch.tensor(y, dtype=torch.long)
+X = torch.tensor(X, dtype=torch.float32).to(device)
+y = torch.tensor(y, dtype=torch.long).to(device)
 
 # Split the dataset into training and testing
 X_train, X_test = X[:int(0.8 * len(X))], X[int(0.2 * len(X)):]
@@ -89,7 +89,7 @@ y_train, y_test = y[:int(0.8 * len(y))], y[int(0.2 * len(y)):]
 # train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
 # Initialize the model, loss function, and optimizer
-model = DinoModel()
+model = DinoModel().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 

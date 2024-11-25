@@ -274,7 +274,7 @@ if __name__ == "__main__":
     # Initialize Population
     population_size = 10
     generations = 20
-    mutation_rate = 0.2
+    mutation_rate = 0.1
     
     # Load the pre-trained model
     agent = DinoModel().to(device)
