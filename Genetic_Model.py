@@ -281,7 +281,7 @@ def evolve_population(population, scores, num_parents=2, mutation_rate=0.1):
 if __name__ == "__main__":
     # Initialize Population
     population_size = 25
-    generations = 50
+    generations = 10
     mutation_rate = 0.1
     
     # Load the pre-trained model
