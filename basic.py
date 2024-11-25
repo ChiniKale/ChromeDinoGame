@@ -105,9 +105,9 @@ while True:  # Game loop
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 dinosaur.bigjump()
-        if event.type == pygame.KEYDOWN:
+        """ if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                dinosaur.smoljump()
+                dinosaur.smoljump() """
         if keys[pygame.K_DOWN]:
             dinosaur.duck(True)
         else:
