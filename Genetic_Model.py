@@ -180,7 +180,7 @@ def run_generation(population, num_dinos=10):
             is_high = random.random() > 0.7
             obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
             obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
-            lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random() + 0.01 * game_timer * 1000
+            lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random() + 0.01 * game_timer * 300
 
         # Update Bat
         bat.update(delta_time)
@@ -246,34 +246,34 @@ def evolve_population(population, scores, num_parents=2, mutation_rate=0.1):
 
 
 
+# if __name__ == "__main__":
+#     # Initialize Population
+#     population_size = 25
+#     generations = 50
+#     mutation_rate = 0.1
+#     population = [DinoModel().to(device) for _ in range(population_size)]
+
+#     for generation in range(generations):
+#         print(f"Generation {generation + 1}")
+#         scores = run_generation(population, num_dinos=population_size)
+
+#         # Print Stats
+#         max_score = max(scores)
+#         avg_score = sum(scores) / len(scores)
+#         print(f"Max Score: {max_score}, Avg Score: {avg_score}")
+
+#         # Evolve
+#         population = evolve_population(population, scores, num_parents=2, mutation_rate=mutation_rate)
+
+#     # Save the best-performing model
+#     best_agent = population[0]
+#     torch.save(best_agent.state_dict(), "dino_genetic_model.pth")
+#     print("Training Complete. Model saved.")
+
 if __name__ == "__main__":
     # Initialize Population
     population_size = 25
-    generations = 50
-    mutation_rate = 0.1
-    population = [DinoModel().to(device) for _ in range(population_size)]
-
-    for generation in range(generations):
-        print(f"Generation {generation + 1}")
-        scores = run_generation(population, num_dinos=population_size)
-
-        # Print Stats
-        max_score = max(scores)
-        avg_score = sum(scores) / len(scores)
-        print(f"Max Score: {max_score}, Avg Score: {avg_score}")
-
-        # Evolve
-        population = evolve_population(population, scores, num_parents=2, mutation_rate=mutation_rate)
-
-    # Save the best-performing model
-    best_agent = population[0]
-    torch.save(best_agent.state_dict(), "dino_genetic_model.pth")
-    print("Training Complete. Model saved.")
-
-if __name__ == "__main__":
-    # Initialize Population
-    population_size = 10
-    generations = 20
+    generations = 100
     mutation_rate = 0.1
     
     # Load the pre-trained model
@@ -285,7 +285,7 @@ if __name__ == "__main__":
     population = [DinoModel().to(device) for _ in range(population_size)]
     for i in range(population_size):
         population[i].load_state_dict(agent.state_dict())  # Copy weights from the pre-trained agent
-
+    
     for generation in range(generations):
         print(f"Generation {generation + 1}")
         scores = run_generation(population, num_dinos=population_size)
@@ -294,12 +294,13 @@ if __name__ == "__main__":
         max_score = max(scores)
         avg_score = sum(scores) / len(scores)
         print(f"Max Score: {max_score}, Avg Score: {avg_score}")
-
+        
+        torch.save(population[0].state_dict(), f"Genetic_Models/dino_genetic_model{generation}.pth")
         # Evolve the population
         population = evolve_population(population, scores, num_parents=2, mutation_rate=mutation_rate)
 
     # Save the best-performing model
     best_agent = population[0]
-    torch.save(best_agent.state_dict(), "dino_genetic_model.pth")
+    torch.save(best_agent.state_dict(), "Genetic_Models/dino_genetic_model.pth")
     print("Training Complete. Model saved.")
 
