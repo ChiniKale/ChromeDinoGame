@@ -31,35 +31,55 @@ mixer.music.load("bgm.mp3")
 achievement_sound = mixer.Sound("100.mp3")
 # gameover_sound = mixer.Sound("gameover.mp3")
 
-# DinoModel Neural Network
 # class DinoModel(nn.Module):
 #     def __init__(self):
 #         super(DinoModel, self).__init__()
 #         self.fc = nn.Sequential(
-#             nn.Linear(6, 128),  # Increased size for initial layer
+#             nn.Linear(10, 256),  # Increased input size and more neurons
+#             nn.ReLU(),
+#             nn.Dropout(0.2),  # Prevent overfitting
+#             nn.Linear(256, 128),
 #             nn.ReLU(),
 #             nn.Linear(128, 64),
 #             nn.ReLU(),
 #             nn.Linear(64, 32),
 #             nn.ReLU(),
-#             nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
+#             nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
 #         )
+#         # Softmax will be applied outside this model during action selection.
 
 #     def forward(self, x):
 #         return self.fc(x)
 
-# Simpler Model 
+# DinoModel Neural Network
 class DinoModel(nn.Module):
     def __init__(self):
         super(DinoModel, self).__init__()
         self.fc = nn.Sequential(
-            nn.Linear(6, 64),  # Updated input size: 4
+            nn.Linear(6, 128),  # Increased size for initial layer
             nn.ReLU(),
-            nn.Linear(64, 3)  # Output: [jump, duck]
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
         )
 
     def forward(self, x):
         return self.fc(x)
+
+# Simpler Model 
+# class DinoModel(nn.Module):
+#     def __init__(self):
+#         super(DinoModel, self).__init__()
+#         self.fc = nn.Sequential(
+#             nn.Linear(6, 64),  # Updated input size: 4
+#             nn.ReLU(),
+#             nn.Linear(64, 3)  # Output: [jump, duck]
+#         )
+
+#     def forward(self, x):
+#         return self.fc(x)
 
 
 # Draw Text Function
@@ -96,6 +116,8 @@ def get_game_state(dinosaur, obstacles, velocity):
 
     return np.array(state, dtype=np.float32)
 
+
+
 def calculate_reward(dinosaur, obstacles, running):
     if not running:
         return -10  # Large penalty for game over
@@ -107,27 +129,29 @@ def calculate_reward(dinosaur, obstacles, running):
         if obs.x < dinosaur.x and not getattr(obs, "passed", False):
             obs.passed = True  # Mark the obstacle as passed
 
-            if obs.y < obs.GroundHeight - obs.size:  # High obstacle
+            if obs.y < dinosaur.surfaceHeight - obs.size:  # High obstacle
                 if dinosaur.is_ducking:
-                    reward += 5  # Bonus for ducking under a high obstacle
+                    reward += 20  # Bonus for ducking under a high obstacle
                 else:
-                    reward -= 1  # Penalty for missing a duck opportunity
+                    reward -= 10  # Penalty for missing a duck opportunity
             else:  # Ground obstacle
                 if dinosaur.is_jumping:
-                    reward += 5  # Bonus for jumping over a ground obstacle
+                    reward += 10  # Bonus for jumping over a ground obstacle
                 else:
-                    reward -= 1  # Penalty for not jumping
+                    reward -= 5  # Penalty for not jumping
 
     # Penalize unnecessary actions when no obstacles are near
     if len(obstacles) > 0:
         next_obstacle = obstacles[0]
-        if next_obstacle.x - dinosaur.x > 100:  # No immediate obstacle
+        distance_to_next = next_obstacle.x - dinosaur.x
+        if distance_to_next > 50:  # No immediate obstacle
             if dinosaur.is_jumping or dinosaur.is_ducking:
-                reward -= 0.5  # Slight penalty for unnecessary actions
+                reward -= 10  # Slight penalty for unnecessary actions
+        elif 0 < distance_to_next <= 50:  # Obstacle is close
+            if not (dinosaur.is_jumping or dinosaur.is_ducking):
+                reward -= 10  # Penalty for no action near an obstacle
 
     return reward
-
-
 
 # Game Logic
 def run_game(agent, memory, optimizer, criterion, train=True):
@@ -168,7 +192,7 @@ def run_game(agent, memory, optimizer, criterion, train=True):
 
         # Spawn Obstacles
         if len(obstacles) == 0 or obstacles[-1].x < WIDTH - MINGAP:
-            is_high = random.random() > 0.7
+            is_high = 1 #random.random() > 0.7
             obstacle_size = random.randint(MINSIZE, MAXSIZE) if not is_high else 30
             obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
             lastObstacle += MINGAP + (MAXGAP - MINGAP) * random.random() + 0.01 * game_timer * 1000
@@ -256,7 +280,7 @@ if __name__ == "__main__":
     memory = []
 
     scores = []  # List to store scores for each episode
-    for episode in range(1000):  # Train for 100 episodes
+    for episode in range(200):  # Train for 100 episodes
         score = run_game(agent, memory, optimizer, criterion, train=True)
         scores.append(score)
         print(f"Episode {episode + 1}: Score = {score}")
