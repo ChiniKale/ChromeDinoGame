@@ -1,10 +1,11 @@
 import pygame
 from dinosaur import Dinosaur  # Import the class Dinosaur from the file ’dinosaur’
-from obstacle import Obstacle
+from obstacle_new import Obstacle
 from batsymbol import Batsymb
 import random
 import torch
 import torch.nn as nn
+import numpy as np
 
 pygame.init()  # Start pygame
 clock = pygame.time.Clock()
@@ -23,6 +24,7 @@ MINGAP = 200
 MAXGAP = 600
 MAXSIZE = 40
 MINSIZE = 20
+WIDTH = 640
 
 # Initialize game components
 gameDisplay = pygame.display.set_mode(size)
@@ -41,21 +43,25 @@ text_font = pygame.font.SysFont("Helvetica", 30)
 white = (255, 255, 255)
 
 # Neural network for RL agent
-class DinoAgent(nn.Module):
+class DinoModel(nn.Module):
     def __init__(self):
-        super(DinoAgent, self).__init__()
-        self.fc1 = nn.Linear(5, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 3)  # 3 actions: [Do nothing, Jump, Duck]
+        super(DinoModel, self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(6, 128),  # Increased size for initial layer
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
+        )
 
     def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        return self.fc3(x)
+        return self.fc(x)
 
 # Load trained model
-q_network = DinoAgent()
-q_network.load_state_dict(torch.load("dino_q_model.pth"))
+q_network = DinoModel()
+q_network.load_state_dict(torch.load("dino_model.pth"))
 q_network.eval()
 
 def draw_text(text, font, text_col, x, y):
@@ -74,14 +80,26 @@ def reset_game():
     mixer.music.play(loops=-1)
 
 def get_game_state(dinosaur, obstacles, velocity):
-    if obstacles:
-        next_obstacle = obstacles[0]
-        distance = next_obstacle.x - dinosaur.x
-        size = next_obstacle.size
-        is_high = int(next_obstacle.is_high)
+    next_obstacles = [obs for obs in obstacles if obs.x > dinosaur.x]
+    if len(next_obstacles) > 0:
+        next_obstacle = next_obstacles[0]
+        # second_obstacle = next_obstacles[1] if len(next_obstacles) > 1 else None
+
+        # Additional state features
+        state = [
+            next_obstacle.x - dinosaur.x,  # Distance to next obstacle
+            next_obstacle.y - dinosaur.y,  # Vertical distance
+            next_obstacle.size,            # Size of next obstacle
+            # second_obstacle.x - dinosaur.x if second_obstacle else WIDTH,  # Distance to second obstacle
+            velocity,                      # Current game velocity
+            1 if dinosaur.is_jumping else 0,  # Is the dinosaur jumping?
+            1 if dinosaur.is_ducking else 0,  # Is the dinosaur ducking?
+        ]
     else:
-        distance = size = is_high = 0
-    return [distance, size, is_high, dinosaur.y, velocity]
+        # Default state when no obstacles are nearby
+        state = [WIDTH, 0, 0, velocity, 0, 0]
+
+    return np.array(state, dtype=np.float32)
 
 while True:  # Main game loop
     t = pygame.time.get_ticks()

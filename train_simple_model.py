@@ -31,8 +31,13 @@ class DinoModel(nn.Module):
 import pandas as pd
 
 # Load the CSV into a DataFrame for easier manipulation
-df = pd.read_csv('Train_Data/20241125-171003.csv')
+df1 = pd.read_csv('Train_Data/20241125-171003.csv')
+df2 = pd.read_csv('Train_Data/20241125-194638.csv')
+df3 = pd.read_csv('Train_Data/20241125-194750.csv')
+df4 = pd.read_csv('Train_Data/20241125-194832.csv')
 
+
+df = pd.concat([df1, df2, df3, df4])
 # Drop any non-numeric columns (or handle them appropriately)
 df = df.apply(pd.to_numeric, errors='coerce')  # Converts everything to numeric, NaN for errors
 
