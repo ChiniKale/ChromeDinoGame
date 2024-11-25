@@ -102,14 +102,15 @@ def get_game_state(dinosaur, obstacles, velocity):
 
         # Additional state features
         state = [
-            next_obstacle.x - dinosaur.x,  # Distance to next obstacle
-            next_obstacle.y,  # Vertical distance
-            next_obstacle.size,            # Size of next obstacle
-            # second_obstacle.x - dinosaur.x if second_obstacle else WIDTH,  # Distance to second obstacle
-            velocity,                      # Current game velocity
-            1 if dinosaur.is_jumping else 0,  # Is the dinosaur jumping?
-            1 if dinosaur.is_ducking else 0,  # Is the dinosaur ducking?
-        ]
+        next_obstacle.x - dinosaur.x,  # Distance to next obstacle
+        next_obstacle.y,  # Vertical distance
+        next_obstacle.size,            # Size of next obstacle
+        velocity,                      # Current game velocity
+        1 if dinosaur.is_jumping else 0,  # Is the dinosaur jumping?
+        1 if dinosaur.is_ducking else 0,  # Is the dinosaur ducking?
+        0 if not dinosaur.is_jumping and not dinosaur.is_ducking else 1  # Is the dinosaur running straight?
+    ]
+
     else:
         # Default state when no obstacles are nearby
         state = [WIDTH, 0, 0, velocity, 0, 0]
