@@ -7,7 +7,7 @@
 ***
 
 _Dinosaurs: Life’s great, nothing can stop us!_ <br>
-_Asteroid: Bet._
+_Asteroid: Bet._ <br>
 _(some millenia later...)_
 _Vinmay: Hold my beer_
 
