@@ -183,7 +183,7 @@ def run_generation(population, num_dinos=10):
             if obstacle_size == 30 and not is_high:
                 obstacle_size+=1
             obstacles.append(Obstacle(lastObstacle, obstacle_size, GROUND_HEIGHT, is_high))
-            lastObstacle += min(MINGAP + (MAXGAP - MINGAP) * random.random(), 500)# + min(300 + 0.01 * game_timer * 1000, 600)
+            lastObstacle += min(MINGAP + (MAXGAP - MINGAP) * random.randint(-1,1), 500)# + min(300 + 0.01 * game_timer * 1000, 600)
 
         # Update Bat
         bat.update(delta_time)
