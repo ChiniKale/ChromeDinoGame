@@ -13,21 +13,6 @@ import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# class DinoModel(nn.Module):
-#     def __init__(self):
-#         super(DinoModel, self).__init__()
-#         self.fc = nn.Sequential(
-#             nn.Linear(6, 128),  # Increased size for initial layer
-#             nn.ReLU(),
-#             nn.Linear(128, 64),
-#             nn.ReLU(),
-#             nn.Linear(64, 32),
-#             nn.ReLU(),
-#             nn.Linear(32, 3)  # Output: [jump, duck, do nothing]
-#         )
-
-#     def forward(self, x):
-#         return self.fc(x)
 
 class DinoModel(nn.Module):
     def __init__(self):

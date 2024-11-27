@@ -52,37 +52,6 @@ class DinoModel(nn.Module):
         return self.fc(x)
 
 
-# # DinoModel Neural Network
-# class DinoModel(nn.Module):
-#     def __init__(self):
-#         super(DinoModel, self).__init__()
-#         self.fc = nn.Sequential(
-#             nn.Linear(6, 128),  # Increased size for initial layer
-#             nn.ReLU(),
-#             nn.Linear(128, 64),
-#             nn.ReLU(),
-#             nn.Linear(64, 32),
-#             nn.ReLU(),
-#             nn.Linear(32, 3)  # Output: [jump, duck,do nothing]
-#         )
-
-#     def forward(self, x):
-#         return self.fc(x)
-
-# Simpler Model 
-# class DinoModel(nn.Module):
-#     def __init__(self):
-#         super(DinoModel, self).__init__()
-#         self.fc = nn.Sequential(
-#             nn.Linear(6, 64),  # Updated input size: 4
-#             nn.ReLU(),
-#             nn.Linear(64, 3)  # Output: [jump, duck]
-#         )
-
-#     def forward(self, x):
-#         return self.fc(x)
-
-
 # Draw Text Function
 def draw_text(text, font, color, x, y, surface):
     text_obj = font.render(text, True, color)
@@ -252,36 +221,10 @@ def evolve_population(population, scores, num_parents=2, mutation_rate=0.1):
 
     return next_population
 
-
-
-# if __name__ == "__main__":
-#     # Initialize Population
-#     population_size = 25
-#     generations = 50
-#     mutation_rate = 0.1
-#     population = [DinoModel().to(device) for _ in range(population_size)]
-
-#     for generation in range(generations):
-#         print(f"Generation {generation + 1}")
-#         scores = run_generation(population, num_dinos=population_size)
-
-#         # Print Stats
-#         max_score = max(scores)
-#         avg_score = sum(scores) / len(scores)
-#         print(f"Max Score: {max_score}, Avg Score: {avg_score}")
-
-#         # Evolve
-#         population = evolve_population(population, scores, num_parents=2, mutation_rate=mutation_rate)
-
-#     # Save the best-performing model
-#     best_agent = population[0]
-#     torch.save(best_agent.state_dict(), "dino_genetic_model.pth")
-#     print("Training Complete. Model saved.")
-
 if __name__ == "__main__":
     # Initialize Population
     population_size = 25
-    generations = 10
+    generations = 50
     mutation_rate = 0.1
     
     # Load the pre-trained model
