@@ -34,4 +34,4 @@ Things remaining to do:
 
 (ambitious) <br>
 5. add a mars version - change the background to look like mars; add a photo of a rover; slightly increase the height jumpable and the time in air after every jump (the starup of this game must have the title: DinoMars - 1200000 BC) <br>
-6. AI MODEL <br> 
+6. AI MODEL [**OMG!!** this is what we were supposed to make] <br> 
